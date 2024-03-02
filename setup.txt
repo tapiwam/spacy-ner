@@ -1,0 +1,16 @@
+Setup
+
+
+conda create -y -n spacy1 python=3.9
+
+conda activate spacy1 
+
+conda install -y -c conda-forge ipykernel
+
+python -m ipykernel install --user --name=spacy1
+
+pip install jupyter
+
+pip install spacy==3.1.7  crosslingual-coreference spacy-transformers==1.1.5 wikipedia neo4j transformers==4.18.0
+python -m spacy download en_core_web_sm
+python -m spacy download en_core_web_lg
