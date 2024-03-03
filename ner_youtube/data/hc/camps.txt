@@ -1,0 +1,56 @@
+Alderney	2
+Amersfoort	25
+Auschwitz	6,246
+Banjica	11
+Bełżec	124
+Bergen-Belsen	2,055
+Bernburg	5
+Bogdanovka	14
+Bolzano	21
+Bor	14
+Breendonk	106
+Breitenau	14
+Buchenwald	2,862
+Chełmno	121
+Dachau	2,558
+Drancy	403
+Falstad	5
+Flossenbürg	432
+Fort VII	22
+Fossoli	25
+Grini	18
+Gross-Rosen	558
+Hinzert	41
+Jägala	4
+Janowska	88
+Jasenovac	263
+Kaiserwald	145
+Kaunas	326
+Kemna	2
+Klooga	51
+Le Vernet	38
+Majdanek	512
+Malchow	80
+Maly Trostenets	5
+Mechelen	119
+Mittelbau-Dora	9
+Natzweiler-Struthof	39
+Neuengamme	384
+Niederhagen	12
+Oberer Kuhberg	4
+Oranienburg	125
+Osthofen	5
+Płaszów	484
+Ravensbruck	902
+Risiera di San Sabba	18
+Sachsenhausen	591
+Sajmište	22
+Salaspils	8
+Sobibór	198
+Soldau	4
+Stutthof	557
+Theresienstadt	1,889
+Trawniki	21
+Treblinka	285
+Vaivara	16
+Westerbork	454
