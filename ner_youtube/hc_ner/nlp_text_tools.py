@@ -95,35 +95,34 @@ def build_test_model(nlp_model, text):
         results = [text, {"entities": entities}]
         return (results)
 
-def book_extract_text_doublespaced_segments(nlp_model, file_name, chapter_separator="CHAPTER", number_of_header_lines=1):
+def book_extract_train_data_doublespaced_segments(file_name, chapter_separator="CHAPTER"):
     TRAIN_DATA = []
+    
+    # New spacy model just for training preparation
+    nlp = spacy.blank("en")
+    
     with open (file_name, "r")as f:
         text = f.read()
 
-        chapters = text.split(chapter_separator)[1:]
-        for chapter in chapters:
-            chapter_details = chapter.split("\n\n")[0:number_of_header_lines]
-            chapter_num = chapter_details[0].strip()
-            segments = chapter.split("\n\n")[number_of_header_lines:]
+        chapters = text.split(chapter_separator)
+        for idx, chapter in enumerate(chapters):
+            segments = chapter.split("\n\n")
             hits = []
             for segment in segments:
                 segment = segment.strip()
                 segment = segment.replace("\n", " ")
-                results = build_test_model(nlp_model, segment)
+                results = build_test_model(nlp, segment)
                 if results != None:
                     TRAIN_DATA.append(results)
 
     return TRAIN_DATA
 
 
-def train_spacy(model_name, TRAIN_DATA, iterations):
+def train_spacy_ner(model_name, TRAIN_DATA, iterations):
     nlp = spacy.blank("en")
 
     # Get ner pipeline
-    if "ner" not in nlp.pipe_names:
-        ner = nlp.add_pipe("ner")
-    else:
-        ner = nlp.get_pipe("ner")
+    ner = nlp.add_pipe("ner")
 
     # Iterate over all entities and add labels to NER model - These could be custom
     for _, annotations in TRAIN_DATA:
