@@ -7,9 +7,12 @@ import numpy as np
 
 import spacy
 from spacy.training.example import Example
+from spacy.lang.en import English
+from spacy.pipeline import EntityRuler
 
 
-import gensim
+
+import gensim, os
 import multiprocessing
 from gensim.models import Word2Vec 
 from gensim.models import KeyedVectors
@@ -81,9 +84,45 @@ def spacy_similarity(your_word, model_name):
 ## LARGE TEXT CORPUS TOOLS
 ## =================
 
+
+def create_training_data_for_rule_generation(data: list, type):
+    patterns = []
+    
+    for item in data:
+        pattern = {
+            "label": type,
+            "pattern": item
+        }
+        patterns.append(pattern)
+
+    print(f"Built {len(patterns)} training examples for ruler: {patterns[-5:]}")
+    return patterns
+
+def generate_entity_ruler_model(model_name: str, patterns: list):
+    nlp = English()
+    ruler = nlp.add_pipe("entity_ruler")
+    ruler.add_patterns(patterns)
+    nlp.to_disk(model_name)
+    return nlp
+    
+
 def book_basic_clean_text(text):
     cleaned = re.sub(r"[\(\[].*?[\)\]]", "", text)
     return (cleaned)
+
+# Clean text by removing many special characters
+def clean_text_loose(text):
+    # Regex for all special characters except full stops and commas
+    pattern = re.compile('[^a-zA-Z0-9.,!?:;][()\n ]')
+    text = pattern.sub('', text)
+    return text
+
+# Clean text by removing all special characters
+def clean_text_strict(text):
+    # Regex for all special characters except full stops and commas
+    pattern = re.compile('[^a-zA-Z0-9.\n ]')
+    text = pattern.sub('', text)
+    return text
 
 def build_test_model(nlp_model, text):
     doc = nlp_model(text)
@@ -94,6 +133,13 @@ def build_test_model(nlp_model, text):
     if len(entities) > 0:
         results = [text, {"entities": entities}]
         return (results)
+
+def prepare_training_data(data):
+    results = []
+    for item in data:
+        results.append([item, "CONC_CAMP"])
+    return results
+
 
 def book_extract_train_data_doublespaced_segments(file_name, chapter_separator="CHAPTER"):
     TRAIN_DATA = []
@@ -118,16 +164,24 @@ def book_extract_train_data_doublespaced_segments(file_name, chapter_separator="
     return TRAIN_DATA
 
 
-def train_spacy_ner(model_name, TRAIN_DATA, iterations):
+def train_spacy_ner(model_name, TRAIN_DATA, iterations, drop=0.2):
+    print(f"Starting training for spacy NER model: {model_name}, training data length: {len(TRAIN_DATA)}")
+    if not os.path.exists(model_name):
+        os.makedirs(model_name)
+
+    # Create blank model
     nlp = spacy.blank("en")
 
     # Get ner pipeline
     ner = nlp.add_pipe("ner")
 
     # Iterate over all entities and add labels to NER model - These could be custom
+    labels = set()
     for _, annotations in TRAIN_DATA:
         for ent in annotations.get("entities"):
             ner.add_label(ent[2])
+            labels.add(ent[2])
+    print(f"Found labels from TRAIN_DATA: {labels}")
 
     # Find all other pipes and disable them
     other_pipes = [pipe for pipe in nlp.pipe_names if pipe != "ner"]
@@ -142,7 +196,7 @@ def train_spacy_ner(model_name, TRAIN_DATA, iterations):
                 example = Example.from_dict(nlp.make_doc(text), annotations)
                 nlp.update(
                     [example],
-                    drop=0.2,
+                    drop=drop,
                     sgd=optimizer,
                     losses=losses
                 )
